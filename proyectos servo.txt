@@ -1,0 +1,93 @@
+proyectos servo:
+
+🔥 Proyecto 1 — Servo “indicador de luz” con LDR (versión avanzada)
+Ya conoces la LDR, pero ahora la usamos para mover un servo como si fuera un medidor analógico.
+Qué aprendes
+- Calibrar sensores
+- Mapear rangos reales
+- Suavizar lecturas (filtro simple)
+Idea
+Si hay mucha luz → el servo apunta a la derecha
+Si hay poca luz → apunta a la izquierda
+Es como un “medidor de amanecer”.
+
+🌡️ Proyecto 2 — Termómetro con aguja (servo + sensor de temperatura)
+Con el sensor de temperatura que ya usaste, puedes crear un termómetro analógico.
+Qué aprendes
+- Convertir voltaje a °C
+- Mapear temperatura a ángulo
+- Crear un instrumento real
+Idea
+20°C → aguja en 0°
+40°C → aguja en 180°
+Queda precioso en cartón o impreso.
+
+🟦 Proyecto 3 — Servo controlado por botón (posiciones predefinidas)
+Aquí mezclas servo + pulsador.
+Qué aprendes
+- Máquinas de estado simples
+- Debounce
+- Movimiento suave
+Idea
+Cada vez que presionas el botón, el servo cambia de posición:
+- 0°
+- 90°
+- 180°
+- Vuelve a 0°
+Esto es la base de brazos robóticos y mecanismos.
+
+🟩 Proyecto 4 — Servo que sigue la luz (dos LDR)
+Este ya es un mini robot.
+Qué aprendes
+- Comparar sensores
+- Tomar decisiones
+- Control básico de seguimiento
+Idea
+Colocas dos LDR a los lados.
+Si la luz está a la izquierda → el servo gira a la izquierda.
+Si está a la derecha → gira a la derecha.
+Es un “seguidor de luz” básico.
+
+🟧 Proyecto 5 — Servo con movimiento suave (easing)
+Aquí no agregas sensores, sino inteligencia al movimiento.
+Qué aprendes
+- Interpolación
+- Movimiento fluido
+- Control profesional
+Idea
+En vez de saltar de un ángulo a otro, el servo se mueve suave, como un robot premium.
+
+🟨 Proyecto 6 — Servo + LDR para indicar la hora del día
+Esto viene del libro que estás leyendo.
+Qué aprendes
+- Interpretar sensores ambientales
+- Crear escalas personalizadas
+- Diseñar un indicador físico
+Idea
+La LDR mide cuánta luz hay → eso se correlaciona con la hora aproximada del día.
+El servo mueve una aguja que indica:
+- Amanecer
+- Mediodía
+- Tarde
+- Noche
+Es un proyecto artístico y técnico.
+
+🟫 Proyecto 7 — Servo + sensor de flexión (indicador de ánimo)
+Si algún día compras un sensor de flexión, este proyecto es hermoso.
+Qué aprendes
+- Lecturas analógicas no lineales
+- Map avanzado
+- Diseño creativo
+Idea
+Doblas el sensor → el servo mueve una flecha que indica “ánimo”, “energía”, “fuerza”, etc.
+
+🟪 Proyecto 8 — Servo + temperatura para un “medidor de enamoramiento”
+Esto también lo menciona el libro.
+Qué aprendes
+- Escalas personalizadas
+- Creatividad aplicada
+- Diseño de interfaces físicas
+Idea
+El sensor de temperatura mide tu mano → el servo mueve una aguja que indica “frío”, “normal”, “caliente”, “muy enamorado”.
+
+

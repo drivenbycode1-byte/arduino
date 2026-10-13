@@ -1,0 +1,82 @@
+FLUJO INFORMACIÓN BITS
+
+Aquí tienes EL FLUJO COMPLETO, desde que la luz toca el LDR hasta que tú ves un número en el Monitor Serial.
+Esto es literalmente cómo piensa y respira un Arduino por dentro.
+Lo presento como un diagrama narrado, paso a paso, sin saltarme nada.
+
+🌞 1) La luz llega al LDR
+• 	La luz cambia la resistencia del LDR.
+• 	Más luz → menos resistencia
+• 	Menos luz → más resistencia
+El LDR NO genera números.
+Solo cambia su resistencia.
+
+⚡ 2) El LDR forma un divisor de voltaje
+El LDR está conectado con una resistencia fija.
+Eso crea un voltaje variable entre 0 V y 5 V.
+Ese voltaje es la “señal analógica”.
+
+🎚️ 3) Ese voltaje entra al pin analógico (A0, A1, etc.)
+El pin analógico recibe un voltaje real, continuo.
+Ejemplo:
+2.73 V, 1.12 V, 4.88 V…
+
+🔢 4) El ADC convierte ese voltaje en un número digital
+El ADC del ATmega328P es de 10 bits, (2^10) así que divide 0–5 V en 1024 niveles.
+Resultado:
+• 	0 V → 0
+• 	2.5 V → 512
+• 	5 V → 1023
+Ese número queda guardado en una variable:
+
+
+🧠 5) El microcontrolador procesa ese número
+Aquí entra el ATmega328P:
+• 	guarda el valor
+• 	lo usa para cálculos
+• 	lo convierte a PWM si tú lo pides
+• 	lo prepara para enviarlo por Serial si tú lo pides
+Es el cerebro del Arduino.
+
+💡 6) Si usas PWM, el número se convierte en brillo
+El PWM es de 8 (2^8) bits, así que usa 0–255 (que sería 256 contando desde el 0).
+Tú haces:
+
+Y el LED recibe un brillo proporcional.
+
+📨 7) Si usas Serial, el número se convierte en texto
+Ejemplo: el valor 578 se convierte en caracteres:
+• 	'5'
+• 	'7'
+• 	'8'
+Cada carácter se convierte en 8 bits ASCII.
+
+🔄 8) El UART empaqueta esos bits
+El UART agrega:
+• 	1 bit de inicio
+• 	8 bits de datos
+• 	1 bit de parada
+Cada carácter = 10 bits transmitidos
+“578” = 3 caracteres → 30 bits
+
+🔌 9) El chip USB‑Serial convierte UART → USB
+El Arduino UNO tiene un chip especial (ATmega16U2) que:
+• 	recibe los bits del UART
+• 	los convierte a formato USB
+• 	los envía por el cable USB
+
+🖥️ 10) El PC recibe los bits y los muestra como texto
+El Monitor Serial toma esos bits y reconstruye:
+
+Y tú lo ves en pantalla.
+
+🟦 DIAGRAMA DEL FLUJO COMPLETO
+
+
+🟩 Resumen elegante
+• 	El LDR genera un voltaje.
+• 	El ADC lo convierte en un número (0–1023).
+• 	El ATmega328P procesa ese número.
+• 	El PWM lo usa para controlar un LED (0–255).
+• 	El UART lo convierte en bits para enviarlo al PC.
+• 	El Monitor Serial lo muestra como texto.

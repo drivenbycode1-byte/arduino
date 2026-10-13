@@ -1,0 +1,632 @@
+Comenzamos señalando que usaremos el pin 13 como salida.
+
+void setup() {
+pinMode(13,OUTPUT);
+}
+
+Y hacemos código que le diga a este pin 13 que se prenda con HIGH y que se apague con LOW
+
+void loop() {
+digitalWrite(13,HIGH);
+delay(1000);
+digitalWrite(13,LOW);
+delay(1000);
+}
+
+
+Ánodo +
+Cátodo -n 
+
+tengo resistencias de pelicula de carbono con núcleo cerámico ya que poseen 4 bandas - tienen ranuras de tipo helicoidal
+las resistencias de película metálica y núcleo cerámico tienen 5 bandas - tienen ranuras de tipo helicoidal
+
+-.PROYECTO 2.-
+2.0 SENSOR DE TEMPERATURA CON TEMPERATURA DE REFERENCIA:
+
+const int pin_del_sensor = A0;
+const float temperatura_de_referencia = 20.0;  // valor fijo, NO calibración
+#aquí te dice que la temperatura inicial serán 20 grados Celsius y esto podrá ser medido mediante el sensor con la fórmula = C = V * 100
+#el voltaje entra en 10 mV ya que el sensor LM35 hace eso, entonces 10 mV son 0.01V =  1C son 0.01V según la fórmula
+
+void setup() {
+  Serial.begin(9600); // abrir el puerto serie
+#los 9600 son los bauldios (baud rate) o bits por segundo. Aquí le está diciendo a Arduino que se envíe datos al monitor serie
+
+  for (int numeroPin = 2; numeroPin < 5; numeroPin++) {
+#aquí hay un bucle en donde se recorre el pin 2 - 3 - 4
+    pinMode(numeroPin, OUTPUT);
+#para cada pin se configura con salida
+    digitalWrite(numeroPin, LOW);
+#estos pines estará apagados al principio
+  }
+}
+
+#diferencia entre ditalWrite y digitalRead: el 1 sirve para encender o apagar un pin digital / el segundo lee si un pin está en HIGH o LOW
+
+void loop() {
+  int valor_del_sensor = analogRead(pin_del_sensor);
+#analogRead lee el voltaje del pin A0 y lo convierte en un número entre 0 y 1023
+
+  Serial.print("Valor del sensor: ");
+  Serial.print(valor_del_sensor);
+
+  // convertir la lectura ADC a tensión
+  float tension = (valor_del_sensor / 1023.0) * 5.0;
+#Entonces el pin va a recibir un número entre 0 y 1023, el ADC dentro del microcontrolador de Arduino toma ese número y usa la fórmula (valor_del_sensor / 1023.0) * 5.0 para dar los mV. Por ejemplo, si el sensor recibe 62, este se multipplica por 5 y se divide por 1023 y me daría 0,030303 y esto se multiplica por 100 y me dan los Celsius 
+#ADC lee valores en esta escala 0V = 0 / 5V = 1023
+#recordar que el LM35 entrega un voltaje de 10 mV por cada grado Celsius 
+  Serial.print(", Voltios: ");
+  Serial.print(tension);
+  Serial.print(", grados C: ");
+
+  // convertir la tensión en temperatura (LM35: 10mV por grado)
+  float temperatura = tension * 100.0;
+
+  Serial.println(temperatura);
+
+#diferencia entre Serial.print y Serial.println , es que ln = línea = salto de línea
+
+  if (temperatura < temperatura_de_referencia) {
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+
+  } else if (temperatura >= temperatura_de_referencia + 2 &&
+             temperatura < temperatura_de_referencia + 4) {
+    digitalWrite(2, HIGH);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+
+  } else if (temperatura >= temperatura_de_referencia + 4 &&
+             temperatura < temperatura_de_referencia + 6) {
+    digitalWrite(2, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(4, LOW);
+
+  } else if (temperatura >= temperatura_de_referencia + 6) {
+    digitalWrite(2, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(4, HIGH);
+  }
+
+  delay(100);
+}
+
+***Tuve problemas con el sensor así que le puse huincha aisladora para poder evitar arranques de electricidad.
+
+✔ calibración automática al inicio
+o
+✔ calibración con botón
+o también algo para que lea la vez que yo quiera
+
+-.PROYECTO_3.-
+3.0 MEZCLA DE COLORES:
+
+- ADC (Analog‑to‑Digital Converter) = Entrada. Un ADC convierte un voltaje analógico (continuo) en un número digital (discreto).
+- PWM (Pulse Width Modulation) = Salida.
+
+En este proyecto se leerán tres sensores LDR (rojo, verde y azul) que obtendrán 3 valores analógicos ADC (0-1023) convirtiéndolos a tres valores PWM (0-225), controlando un LED RGB que varía su intensidad con cada color. La luz que recibe ca LDR controla el brillo del color correspondiente del LED RGB.
+
+El ADC de Arduino UNO es de 10 bitsa - 2 elevado a 10 = 1024 niveles.
+analogRead() devuelve 0 = 0V / 1023 = 5V
+
+PMW es modulación por ancho de pulso,. ARduinon no genera voltajes analógicos reales, así que enciende y apaga pines muy rápido: 
+- Si está encendido el 100% del tiempo → parece 5 V
+- Si está encendido el 50% del tiempo → parece 2.5 V
+- Si está encendido el 0% del tiempo → 0 V
+Ese “porcentaje” se expresa como un número entre 0 y 255:
+- 0 → 0%
+- 127 → 50%
+- 255 → 100%
+
+
+const int PinLedVerde = 9;
+const int PinLedRojo = 11;
+const int PinLedAzul = 10;
+
+const int PinEntradaLDR_Rojo = A0;
+const int PinEntradaLDR_Verde = A1;
+const int PinEntradaLDR_Azul = A2;
+
+int ValorSensorRojo = 0;
+int ValorSensorVerde = 0;
+int ValorSensorAzul = 0;
+
+int ValorRojo = 0;
+int ValorVerde = 0;
+int ValorAzul = 0;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(PinLedVerde, OUTPUT);
+  pinMode(PinLedRojo, OUTPUT);
+  pinMode(PinLedAzul, OUTPUT);
+}
+
+void loop() {
+  ValorSensorRojo = analogRead(PinEntradaLDR_Rojo);
+  delay(5);
+  ValorSensorVerde = analogRead(PinEntradaLDR_Verde);
+  delay(5);
+  ValorSensorAzul = analogRead(PinEntradaLDR_Azul);
+
+  Serial.print("Mapa de valores sensores \t Rojo: ");
+  Serial.print(ValorSensorRojo);
+  Serial.print("\t Verde: ");
+  Serial.print(ValorSensorVerde);
+  Serial.print("\t Azul: ");
+  Serial.print(ValorSensorAzul);
+  
+  ValorRojo = ValorSensorRojo/4;
+  ValorVerde = ValorSensorVerde/4;
+  ValorAzul = ValorSensorAzul/4;
+
+  Serial.print("Mapa de valores de los sensores \t Rojo: ");
+  Serial.print(ValorRojo);
+  Serial.print("\t Verde: ");
+  Serial.print(ValorVerde);
+  Serial.print("\t Azul: ");
+  Serial.print(ValorAzul);
+
+  analogWrite(PinLedRojo, ValorRojo);
+  analogWrite(PinLedVerde, ValorVerde);
+  analogWrite(PinLedAzul, ValorAzul);
+}
+
+
+El libro dice algo así como:
+“La salida de la fotorresistencia no trabaja en todo el rango 0–1023.
+Esto está bien, pero si quieres calibrar el rango, revisa el proyecto 6.”
+
+Traducción técnica:
+- Las LDR no siempre entregan valores desde 0 hasta 1023.
+- Depende de la luz, la resistencia fija, el circuito, etc.
+- A veces trabajan solo entre 300 y 700, por ejemplo.
+- Eso NO es un error.
+- Si quieres que el LED use todo su rango, debes mapear esos valores reales a 0–255.
+Ejemplo:
+Si tu LDR solo da valores entre 400 y 800, puedes hacer:
+ValorRojo = map(ValorSensorRojo, 400, 800, 0, 255);
+*ENTONCES HAREMOS UNA VERSIÓN CON LOS ldr CALIBRADOS
+
+🟦 1) Diferencia entre analogRead() y analogWrite()
+🔵 analogRead(pin)
+Lee un voltaje analógico (0–5 V) desde un pin marcado como A0, A1, A2…
+Ese voltaje pasa por el ADC de 10 bits, que lo convierte en un número entre:
+0\leftrightarrow 1023
+Ejemplo:
+- 0 V → 0
+- 2.5 V → 512
+- 5 V → 1023
+Sirve para leer sensores: LDR, LM35, potenciómetros, etc.
+
+🔴 analogWrite(pin, valor)
+No escribe un voltaje real.
+Genera PWM: encender y apagar MUY rápido un pin digital especial (9, 10, 11, etc.).
+El valor va entre:
+0\leftrightarrow 255
+- 0 → apagado
+- 255 → encendido al 100%
+- 127 → encendido el 50% del tiempo
+Sirve para controlar brillo de LEDs, velocidad de motores, intensidad de un RGB, etc.
+
+🟩 2) Resumen práctico:
+🔹 Paso 1: El LDR cambia su resistencia según la luz
+Eso genera un voltaje variable en un divisor de tensión.
+🔹 Paso 2: Ese voltaje entra al pin analógico
+El Arduino lo mide.
+🔹 Paso 3: El ADC convierte ese voltaje en un número 0–1023
+Ese número lo obtienes con:
+
+🔹 Paso 4: Ese número se convierte a PWM (0–255)
+Porque los pines PWM solo aceptan 0–255.
+
+🔹 Paso 5: El LED RGB recibe ese PWM
+Y eso determina cuánto tiempo está encendido en cada ciclo.
+Resultado:
+• 	más luz → más voltaje → número ADC más alto → LED más brillante
+• 	menos luz → menos voltaje → número ADC más bajo → LED más tenue
+Tu resumen es correcto:
+el Arduino traduce voltaje → número → brillo.
+
+Los bits son como la electrónica interpreta el voltaje, 0 es 0v y 1 es 5v, es es el sistema binario.
+Arduino recibe el voltaje y lo interpreta entre 2^10, el dos es por el sistema binario, y eso da 1023, entonces Arduino, mediante el convertidor ADC, interpreta es voltaje.
+
+🟦 1) El número 1023 NO son “1023 bits”
+Aquí está el primer punto importante:
+✔ 1023 es un valor, no una cantidad de bits.
+El ADC del Arduino usa 10 bits para representar un voltaje.
+Con 10 bits puedes representar:
+2^{10}=1024\mathrm{\  valores\  posibles}
+Esos valores van de:
+- 0
+- a 1023
+Pero 1023 no son bits, es solo el número máximo que puedes representar con 10 bits
+
+
+🟩 2) Entonces, ¿qué son los “9600 bits” de Serial.begin(9600)?
+Aquí sí estamos hablando de bits reales, no de valores.
+Serial.begin(9600) significa:
+“Enviaremos 9600 bits por segundo por el puerto serial.”
+
+Es decir:
+- 9600 ceros y unos por segundo
+- que viajan por el cable USB
+- para que tú puedas ver texto en el Monitor Serial
+Esto es velocidad de transmisión, no valores de sensores.
+
+4) ¿Cómo se relacionan entonces?
+Aquí está la conexión real:
+✔ El ADC produce un número entre 0 y 1023
+Ese número se guarda en una variable.
+✔ Tú lo envías por el puerto serial
+Ese número se convierte en texto:
+
+El ADC usa 10 bits para representar un voltaje como un número entre 0 y 1023.
+El puerto serial usa 9600 bits por segundo para enviar esos números como texto.
+Son dos mundos distintos:
+• 	uno mide
+• 	el otro comunica
+
+🟦 5) ¿Tiene algo que ver el ADC de 10 bits con los 9600 bits/s?
+NO.
+Y aquí está la razón:
+✔ Los 10 bits del ADC son la precisión con la que el Arduino mide un voltaje.
+Ejemplo: 0–1023.
+✔ Los 9600 bits/s son la velocidad a la que el Arduino envía datos al PC.
+Ejemplo: cuántos ceros y unos puede transmitir por segundo.
+
+🟥 ✔ 3. Después, tú decides si quieres enviar ese número al PC
+Aquí es donde entra el puerto serial.
+Cuando haces:
+Serial.println(ValorSensor);
+
+✔ 6. Resumen perfecto (ya lo tienes casi completo)
+• 	El LDR genera un voltaje.
+• 	El ADC lo convierte en un número entre 0 y 1023 usando 10 bits.
+• 	Ese número se guarda en una variable.
+• 	Si tú quieres verlo en el PC, lo envías como texto ASCII.
+• 	Cada carácter ASCII ocupa 8 bits (más bits de control).
+• 	Enviar “578” requiere ~30 bits.
+• 	A 9600 bits/s puedes enviar ~320 valores por segundo.
+• 	El puerto serial solo sirve para comunicación, no para medir voltaje.
+
+
+Ese número se convierte en texto ASCII, y luego en bits que viajan por USB.
+
+Cuando tú escribes:
+Serial.begin(9600);
+le dices al Arduino:
+Activa tu módulo UART y envía datos a 9600 bits por segundo.
+Entonces el Arduino empieza a generar ceros y unos (bits) a esa velocidad.
+
+En el Arduino UNO, el puerto serial está compuesto por:
+• 	El módulo UART del microcontrolador
+• 	El chip USB‑Serial
+• 	El cable USB
+• 	El puerto COM en tu PC
+• 	El Monitor Serial
+Su función es comunicar Arduino ↔ PC.
+
+ ¿Qué es UART?
+UART significa:
+Universal
+Asynchronous
+Receiver
+Transmitter
+Es decir:
+
+En palabras simples:
+UART es el módulo dentro del Arduino que:
+• 	convierte texto en bits
+• 	los envía uno por uno
+• 	recibe bits y los convierte en texto
+• 	controla la velocidad (9600, 115200, etc.)
+• 	agrega bits de inicio y parada
+• 	asegura que los datos lleguen bien
+Es la “boca” y los “oídos” digitales del Arduino.
+El UART hace esto:
+1. 	Toma el número 578
+2. 	Lo convierte en caracteres ASCII: 
+3. 	Cada carácter lo convierte en 8 bits
+4. 	Agrega bits de control (start/stop)
+5. 	Envía esos bits a 9600 bits por segundo
+6. 	El chip USB‑Serial los transforma en USB
+7. 	El PC los recibe y los muestra en el Monitor Serial
+Sin UART, el Arduino sería mudo.
+
+*HACER UNA SEGYUNDO CÓDIGO QUE CALIBRE
+
+-.PROYECTO_5.-
+5.0 SERVOMOTOR:
+
+Servo (servus en latín = sirviente) significa que un motor obedece ordenes, no gira libremente, tiene un angulo especifico (0 - 180 grados), se posiciona con precisión.
+Tiene un motor dc y un potenciómetro interno, tiene un feedback (retroalimentación)
+*Diferente del Stepper Motor que no gira con ángulos, o sea, da miles de vueltas y es extremadamente preciso. No tiene electrónica interna y necesita un driver. Tiene bobinas, no sabe donde está, uno debe decirle paso a apaso como moverse.
+
+Potenciometro: tres pines - izquierda GND - medio Entrada analógica - Derecha 5V
+
+Condensador (capacitores anglicanismo): almacena energía eléctrica en fomra de camp0o eléctrico. Unidad = Faradio
+formado por dos placas que conducen la alectricidad y al medio un aislante dielectrico para que la electricidad no pase de un lado a otro. SI aplicacmos diferencia de potencial, las cargss negativos de un placa irán a la otra, estonces una placa queda con carga neta + y la otra -. pero laa carga total cerá 0 por que no se acumulan cargas electricas, solo se apsan de una placa a otra. Acumulan energia potencial electrica electromagnetica
+Entonces al guardar energía por polaridad 
+
+Ls idea de usar condensadores es por la caída de tensión, o sea, hay un pico muy alto de votaje al iniciar el servomotor
+
+Todas las fuentes tienen resistencia interna, o sea R-interna. Esparte del material o cables, reguladores, necesita vencer la inercia, la friccción , cargar engranajes, etc. Entonces cuando el servo corre, necesita muchas corriente ya que parte de 0, esto se conoce como corriente de arranque o inrush current, siendo 3 a 5 veces mayor que la corriente del servo. Entonces como aumenta la corriente de golpe en una fuente con resistencia interna necesitamos algo que la modere (consdensador). Aquí entra la ley de Ohm pero la V es delta V, o la tensión quie se pierde. En VIR si I sube , delta V sube, entonces parte del voltaje se pierde (caída de tensión)
+Supongamos:
+- La fuente entrega 5 V
+- Su resistencia interna es 0.2 Ω
+- El servo pide un pico de 500 mA (0.5 A)
+Entonces:
+\Delta V=0.5\cdot 0.2=0.1\mathrm{\  V}
+La línea baja de:
+5.0\mathrm{\  V}\rightarrow 4.9\mathrm{\  V}
+Si el pico es más grande (1 A), entonces:
+\Delta V=1\cdot 0.2=0.2\mathrm{\  V}
+La línea baja a:
+5.0\mathrm{\  V}\rightarrow 4.8\mathrm{\  V}
+Y si la resistencia interna es mayor (cables largos, mala fuente, USB débil), la caída puede ser mucho peor.
+
+Entonces, si la fuente interna tiene resistencia va a abajar el voltaje que le va a allegar al servo, entonces el servo con menor voltaje (caida de tension) tendrá menor amperaje. Y todo esto sucede por que hay amperjae. Siempre que conectemos algo que requiera corriente/amperaje, el voltaje va a bajaar. o sea, si un aparato requiere mucha crriente, mediante la abse del VIR, el voltaje va a abjar, y si baja el voltaje, llega menos corriente al dispositivoy en consecuencia el dispositivo tendrá menos corriente.
+
+Le llamamos un pico de corriente cuando el dispositivo (el servo en este caso) pide un x de corriente y en consecuencia de este pico, al no ser dado por la fuente ya que bajó su voltaje, habr,a un caidad de tension
+
+El condensador no evita la caída de tensión “subiendo el voltaje”.
+La evita entregando corriente para que la fuente NO tenga que entregar el pico.
+El condensador no alimenta al servo todo el tiempo.
+Solo entrega corriente en los picos para evitar que el voltaje caiga.
+Entre picos, queda cargado a 5 V esperando el siguiente tirón.
+Consume picos de corriente cada vez que:
+- cambia de posición
+- acelera
+- frena
+- corrige su posición interna
+- lucha contra una carga
+- compensa vibraciones
+- su motor interno hace microajustes
+
+- Q = C x V   --- Q = Carga almacenada (culombios) / C = Capacitancia (faradios) / V = Voltaje aplicado
+El condensador no deja pasar corriente continua pero si deja pasar variaciones ráp[idas de voltaje.
+
+#include <Servo.h> //permite generar la librería que genera la señal PWM especial que el servo necesita, controlar ángulo con write(), controlar los pulsos de 1 ms a 2 ms.
+// .h significa header file. este archivo de cabecera declara funciones, clases, constantes, estructuras. Entonces al usar Servo.h le dices a Arduino que quieres usar las funcoines de la yclases de Servo, así puedes usar servo.write/ read/ arttach, etc
+
+Servo MiServo;  //se crea el objeto que representa el servo. COmo instanciar o sea conectoar un componente al protoboard (como ejemplo)
+
+const int PinPot = A0; // Pin donde se lee el potenciómetro.
+int ValorPot; // valor entre 0 y 1023
+//pot es Potentiometer
+int Angulo; // valor convertido en grados entre 0 a 179
+
+void setup() {
+  MiServo.attach(9); //en el pin 9 se genera la señal PWM para controlar el servo.
+// .attach reserva un pin para generar la señal del servo, o sea, solo se usa para generar pulsos.
+// . attach también le dice al timer que haga los pulsos y programa el temporizador de 50hz
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  ValorPot = analogRead(PinPot); //convierte el voltaje del potenciómetro (0-5V) en un número en 0 y 1023 = ADC de 10 bits
+// analogRead lee el voltaje.
+  Serial.print("Posición del potenciómetro: ");
+  Serial.println(ValorPot);
+
+  Angulo = map(ValorPot, 0, 1023, 0, 179); //función map() hace una regla de tres, si el pot es 0, el angulo es 0, si el pot es 1023 el angulo en 179, si está a la mitad es 90.
+//Rango de entrada (del potenciómetro)
+• 	0 → mínimo del ADC
+• 	1023 → máximo del ADC
+Rango de salida (del servo)
+• 	0 → ángulo mínimo
+• 	179 → ángulo máximo que acepta la librería
+  Serial.print("Ángulo: ");
+  Serial.println(Angulo);
+
+  MiServo.write(Angulo);//Arduino genera un pulso entre 1 ms y 2 ms, ese pulso se repite cada 20ms, el servo interpreta el pulso como un ángulo. el pulso está en HIGH 1 ms y el resto de ms que son 19 queda en LOW.\
+// entonces el .write traduce el valor entre 0 y 179 para llevarlo al brazo, o sea convertir ese valor en un puilso.
+//Ejemplo:
+- 1.0 ms → 0°
+- 1.5 ms → 90°
+- 2.0 ms → 180°
+// ✔ Frecuencia (Hz) = cuántos ciclos ocurren por segundo
+✔ Periodo (s) = cuánto dura un ciclo
+// entonces aquí hay 50 hz q	ue es lo mismo que 20 ms por converción. 1/50 = 0.02 = 20 ms.
+// Ese pulso se emite cada 20 ms apra que el ángulo se mantenga
+  delay(100);
+}
+
+🟩 5) ¿Cómo se relaciona el ADC con el PWM del servo?
+Aquí está la cadena completa, blindada:
+✔ 1) Giras el potenciómetro
+→ cambia el voltaje (0–5 V)
+✔ 2)  convierte ese voltaje
+→ número digital (0–1023)
+✔ 3)  convierte ese número
+→ ángulo (0–179)
+✔ 4)  convierte ese ángulo
+→ pulso de 1–2 ms
+✔ 5) La librería repite ese pulso
+→ cada 20 ms (50 Hz)
+✔ 6) El servo interpreta ese pulso
+→ mueve el motor hasta ese ángulo
+
+-.PROYECTO_5.-
+5.1 SERVOMOTOR Servo “indicador de luz” con LDR:
+
+PASO 1
+Comenzamos primero calibrando el LDR
+
+const int PinLDR = A0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int lectura = analogRead(PinLDR);
+  Serial.println(lectura);
+  delay(200);
+}
+
+PASO 2: Reconocer la luz ambiente:
+1. Tus valores reales
+✔️ Luz ambiente
+Code
+14–15
+✔️ Linterna
+Code
+186–216
+✔️ Tapado
+Code
+2–3
+
+PASO 3: Suavizar Lectura:
+ValorLuz = (ValorLuz * 0.7) + (lectura * 0.3);
+
+PASO 4: Código Final:
+
+#include <Servo.h> --> Importa la librería para usar servos y poder usar attach() y write()
+
+Servo MiServo; --> Se crea la instancia del Servo
+
+
+*Variables globales: pueden ser usadas por setup y loop, si solo las pusiera en setup funcionaría una sola vez. Además mantienen su valor en iteraciones del loop.
+const int PinLDR = A0;
+int ValorLuz = 0;
+int Angulo;
+
+void setup() {
+  MiServo.attach(9); --> dice: "conecta el servo al pin9"
+  Serial.begin(9600);
+}
+
+void loop() {
+  int lectura = analogRead(PinLDR);
+
+  // Filtro para suavizar la lectura
+  ValorLuz = (ValorLuz * 0.7) + (lectura * 0.3);
+
+  Serial.print("Luz: ");
+  Serial.println(ValorLuz);
+
+  // Calibración real según tus mediciones
+  Angulo = map(ValorLuz, 2, 200, 0, 179);
+
+*El protocolo del servo es:
+1.0 ms → 0°
+1.5 ms → 90°
+2.0 ms → 180°
+repetido cada 20 ms (50 Hz)
+
+Esto se llama:
+PWM de control de servos (Servo PWM)
+
+  MiServo.write(Angulo);
+  delay(50);
+}
+
+-----------------.PROYECTO_5.--------------------
+5.3 SERVOMOTOR Servo con Botón:
+
+#include <Servo.h>
+
+Servo MiServo;
+
+const int PinBoton = 2;
+int estadoServo = 0; #Estado inicial
+
+bool estadoBoton;
+bool ultimoEstadoBoton = LOW;
+#bool = booleano = recordar que este este estado solo puede ser true o false
+
+unsigned long ultimoTiempo = 0;
+#esta variable se usa para números grandes como en los milisegundos o delays sin bloquear, por lo tanto millis() devuelve un unsigned long.
+const int debounceDelay = 50;
+
+void setup() {
+  MiServo.attach(9);
+  pinMode(PinBoton, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  bool lectura = digitalRead(PinBoton);
+
+  if (lectura != ultimoEstadoBoton) {
+    ultimoTiempo = millis();
+#esta función millis() devuelve el tiempo que Arduieno lleva encendido en milisegundos, 5 segundos = 5000ms / 1 min = 60000ms. Pero OJO, el tiempo nunca se resetea, solo guarda valor actual, solo se resetea al apagarse o apretar el botón reset.
+#ultimoTiempo es el momento exacto en que el botón cambia de estado y guardamos el tiempo., se esperan 50ms, si el botón sigue igual, el cambio es real, si cambia en en ese instante es solo ruidos ya que 50ms es un tiempo demasiado rápido 
+  }
+
+  if ((millis() - ultimoTiempo) > debounceDelay) {
+    if (lectura != estadoBoton) {   
+      estadoBoton = lectura;
+#Aquí se detecta el flanco. Flanco es cuando la señal cambia. Solo se detecta el flanco ascendente (LOW -> HIGH = botón suelto -> botón presionado, o sea, pasa corriente). Cuando presionamos pasa corriente (5V) y hay cambio de estado de low=0 a high=1
+#recordar que el estadoBoton es el estado decía antes
+
+      if (estadoBoton == HIGH) {
+        estadoServo++;
+        if (estadoServo > 2) estadoServo = 0;
+
+        if (estadoServo == 0) MiServo.write(0);
+        if (estadoServo == 1) MiServo.write(90);
+        if (estadoServo == 2) MiServo.write(180);
+
+        Serial.print("Estado: ");
+        Serial.println(estadoServo);
+      }
+    }
+  }
+
+  ultimoEstadoBoton = lectura;
+}
+
+Presiono el botón que está suelto, unido a GND y pasann los 5V, pasa a high. la lectura pasa a high mediante el digitalread. como el ultimoEstadoBoton era Low, lectura es diferente a ultimoEstadoBoton, por lo que el ultimo tiempo que comienza como una variable contante cambia de 0 a lo que este millis() en ese momento. si ese valor es mayor a debounceDelay, entonces la lectura que esta en high en este momento siguiendo la lógica del flanco ascendnte, pensando en que presionamos por primera vez el botón, y está enn high, entonces lectura es diferente a  estadoBoton que está en low, por lo que estadoBoton pasa a ser = a lectura, o sea estadoBoton cambia a high. si estadoBoton es = a high se suma en valor 1 el estadoServo y así va cambiando el ángulo. de 0 a 90. pero al soltar el  botón, el estadoboton pasa a low y comienza le proceso de nuevo. Pero solo avanza estado cuando pasa de LOW → HIGH, no cuando pasa de HIGH → LOW. Por eso el servo no avanza al soltar el botón.
+
+
+-----------------.PROYECTO_5.--------------------
+5.4 SERVOMOTOR Servo con Easing:
+
+Para lograr movimientos suaves usamos la interpolación o EASING, son movimientos que, podríamos decir, asemejan a los músculos.
+supongamos que un servo se mueve de 0 a 90 grados, la interpolación lo hace pero con momentos espaciados (interpolados), o sea para llegar a 90 va de 5 grados en 5, divide el movimiento en pasos pequeños.
+EASING = suavizar el movimiento (se puede acelerar y desacelerar). Vamos con el código:
+
+#include <Servo.h> # librería para controlar servos.
+
+Servo MiServo; # Instancia.
+
+int anguloActual = 0;     // Donde está el servo ahora
+int anguloObjetivo = 0;   // Donde queremos que llegue
+
+void setup() {
+  MiServo.attach(9);
+}
+
+void moverSuave(int objetivo) {  #moverSuave es un función que tiene como parámetro el int objetivo que será el ángulo al que se moverá el servo.
+  anguloObjetivo = objetivo; # el valor de objetivo se guarda en anguloObjetivo.
+
+  // Movimiento suave
+  while (anguloActual != anguloObjetivo) {
+    if (anguloActual < anguloObjetivo) anguloActual++;
+    if (anguloActual > anguloObjetivo) anguloActual--;
+
+    MiServo.write(anguloActual);
+    delay(1);  // velocidad del movimiento
+  }
+}
+
+void loop() {
+  moverSuave(0);
+  delay(1000);
+
+  moverSuave(90);
+  delay(1000);
+
+  moverSuave(180);
+  delay(1000);
+
+  moverSuave(90);
+  delay(1000);
+}
+

@@ -1,0 +1,30 @@
+P4H Prótesis
+
+Centro de investigación privada
+
+1- Análisis clínico.
+2- Generar un modelo matemático.
+	análisis cinemático
+	análisis de esfuerzo de piezas biomecánicas.
+	
+3- Diseño biomécanico.
+	toma de medidas con escáner o yeso
+4- Diseño robótico.
+	Comenzar desde la falange, una genérica.
+	Mecanisno de 4 barras: 4 barras y 4 puntos de anclajes = fácil modelaje.
+		Genera una trayectoria.
+		Necesita un elemento de transmisión de fuerzas = engranes cónicos.
+	Servomotor.
+5- Diseño bioelectrónico:
+	creación de sensor mio-eléctrico.
+		a) amplificar ruido con un filter. Instrumentar sonido y limpiarlo.
+		amplificar la instrumentación a 500. Amplificar ruido para reconocerlo y que la señal se pueda observar.
+		b) Filtrar: lograr que el sensor reconozca las señales del músculo y no de algún órgano.
+		c) Rectificar: limitar los voltios,
+
+6- programación.
+7- manufacturación:
+8- Seguimiento.
+
+
+
